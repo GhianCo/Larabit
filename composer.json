@@ -1,7 +1,12 @@
 {
   "name": "larabit/boilerplate",
   "description": "Services with Slim and PHP.",
-  "keywords": ["larabit", "php", "slim", "api"],
+  "keywords": [
+    "larabit",
+    "php",
+    "slim",
+    "api"
+  ],
   "homepage": "https://www.larabit.com",
   "license": "MIT",
   "authors": [
@@ -31,5 +36,11 @@
       "App\\": "src/",
       "Tests\\": "tests/"
     }
+  },
+  "scripts": {
+    "post-create-project-cmd": [
+      "php -r \"copy('.env.example', '.env');\"",
+      "php post-create-project-command.php"
+    ]
   }
 }
