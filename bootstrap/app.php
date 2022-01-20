@@ -18,6 +18,9 @@ $settings = require __DIR__ . '/../config/settings.php';
 $app = new \Slim\App($settings);
 $app->add(new \CorsSlim\CorsSlim());
 $container = $app->getContainer();
+
+require __DIR__ . '/../src/constants.php';
+
 require __DIR__ . '/../config/dependencies.php';
 require __DIR__ . '/../config/services.php';
 require __DIR__ . '/../config/repositories.php';
