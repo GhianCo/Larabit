@@ -4,21 +4,10 @@ namespace App\Repository;
 
 use App\Exception\ConexionDB;
 use Illuminate\Database\Eloquent\Model;
+use App\Service\BaseService;
 
 abstract class BaseRepository
 {
-    public $database;
-
-    public function __construct($database)
-    {
-        $this->database = $database;
-    }
-
-    protected function getDb()
-    {
-        return $this->database;
-    }
-
     public function create(Model $model)
     {
         try {
@@ -50,24 +39,79 @@ abstract class BaseRepository
         }
     }
 
-    protected function getResultsWithPagination($query, $page, $perPage, $params, $total)
+    protected function getResultsWithPagination($model, $whereParams = array(), $page = 0, $perPage = BaseService::DEFAULT_PER_PAGE_PAGINATION)
     {
+        $resultQuery = $this->getResultByPage($model, $whereParams, ($page - 1) * $perPage, $perPage);
+
         return [
             'pagination' => [
-                'totalRows' => $total,
-                'totalPages' => ceil($total / $perPage),
+                'totalRows' => $resultQuery['total'],
+                'totalPages' => ceil($resultQuery['total'] / $perPage),
                 'currentPage' => $page,
                 'perPage' => $perPage,
             ],
-            'data' => $this->getResultByPage($query, $page, $perPage, $params),
+            'data' => $resultQuery['data'],
         ];
     }
 
-    protected function getResultByPage($query, $page, $perPage, $params)
+    protected function getResultByPage(Model $model, $whereParams = array(), $page = 0, $perPage = 2000)
     {
-        $offset = ($page - 1) * $perPage;
-        $query .= " LIMIT ${perPage} OFFSET ${offset}";
-        $data = $this->database::select($query, $params);
-        return (array)$data;
+
+        try {
+            global $pdo;
+
+            $modelSql = $model::select($model::raw('SQL_CALC_FOUND_ROWS *'));
+
+            if (count($whereParams) > 0) {
+                foreach ($whereParams as $wp) {
+                    $operatorConditional = 'where';
+                    $conditional = '';
+                    if (isset($wp['conditional'])) {
+                        if ($wp['conditional'] == 'whereIn' && is_array($wp['value'])) {
+                            $operatorConditional = 'whereIn';
+                        } else {
+                            if ($wp['conditional'] == '' || $wp['conditional'] == null) {
+                                $conditional = 'and';
+                            } else {
+                                if (strtolower(trim($wp['conditional'], ' ')) == 'and') {
+                                    $conditional = 'and';
+                                } else if (strtolower(trim($wp['conditional'], ' ')) == 'or') {
+                                    $conditional = 'or';
+                                } else {
+                                    $conditional = 'and';
+                                }
+                            }
+                        }
+                    } else {
+                        $conditional = 'and';
+                    }
+                    if ($operatorConditional == 'where') {
+                        if ($wp['value'] == null) {
+                            $modelSql->whereNull($wp['field']);
+                        } else {
+                            $modelSql->where($wp['field'], $wp['operator'], $wp['value'], $conditional);
+                        }
+                    } else if ($operatorConditional == 'whereIn') {
+                        $modelSql->whereIn($wp['field'], $wp['value']);
+                    }
+                }
+            }
+
+            if ($perPage != 0 && $perPage != UNDEFINED) {
+                $modelSql->take($perPage)->skip($page);
+            }
+
+            $data = $modelSql->get()->toArray();
+
+            $total = $pdo::selectOne('SELECT FOUND_ROWS() AS totalCount')->totalCount;
+
+            return [
+                'data' => (array)$data,
+                'total' => $total
+            ];
+        } catch (\Exception $exception) {
+            throw new ConexionDB($exception->getMessage(), 500);
+        }
     }
+
 }

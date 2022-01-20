@@ -38,3 +38,5 @@ $container['notFoundHandler'] = static function () {
         throw new \App\Exception\NotFound('Ruta no encontrada.', 404);
     };
 };
+
+$pdo = $container['db'];
