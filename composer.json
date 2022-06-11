@@ -42,5 +42,8 @@
       "php -r \"copy('.env.example', '.env');\"",
       "php post-create-project-command.php"
     ]
+  },
+  "config": {
+    "platform-check": false
   }
 }
