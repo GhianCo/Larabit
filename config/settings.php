@@ -4,6 +4,7 @@ return [
     'settings' => [
         'displayErrorDetails' => filter_var($_SERVER['DISPLAY_ERROR_DETAILS'], FILTER_VALIDATE_BOOLEAN),
         'db' => [
+            'driver' => $_SERVER['DB_DRIVER'],
             'host' => $_SERVER['DB_HOST'],
             'name' => $_SERVER['DB_NAME'],
             'user' => $_SERVER['DB_USER'],

@@ -171,11 +171,10 @@
       <path value="$PROJECT_DIR$/vendor/graham-campbell/result-type" />
     </include_path>
   </component>
-  <component name="ProjectFrameBounds">
-    <option name="x" value="831" />
+  <component name="ProjectFrameBounds" extendedState="1">
     <option name="y" value="25" />
-    <option name="width" value="849" />
-    <option name="height" value="928" />
+    <option name="width" value="862" />
+    <option name="height" value="927" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
