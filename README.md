@@ -3,8 +3,8 @@
 ## HOW TO USE:
 
 ```bash
-$ php console generate:resources:database
-Success - Se generaron los recursos de la base de datos: [database]
+$ composer create-project ghianco/larabit [project-name]
+Success - Download packages from composer and base structure 
 ```
 
 **This package is for exclusive use of this [Larabit](https://github.com/GhianCo/larabit) project.**
