@@ -8,7 +8,7 @@ $container['db'] = static function (ContainerInterface $container) {
     $database = $container->get('settings')['db'];
     $pdo = new Database();
     $pdo->addConnection([
-        'driver'    => 'mysql',
+        'driver'    => $database['driver'],
         'host'      => $database['host'],
         'database'  => $database['name'],
         'username'  => $database['user'],
