@@ -5,7 +5,7 @@ use App\QueryManager\Mysql\MysqlQueryManager;
 use Psr\Container\ContainerInterface;
 use \App\Exception\NotFound;
 
-$container['mysqlQueryManager'] = static function (ContainerInterface $container) {
+$container['db'] = static function (ContainerInterface $container) {
     $database = $container->get('settings')['db'];
     $dsn = sprintf(
         'mysql:host=%s;dbname=%s;port=%s;charset=utf8',
