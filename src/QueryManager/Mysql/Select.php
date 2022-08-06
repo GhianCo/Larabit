@@ -21,7 +21,7 @@ class Select implements IQueryManager
 
     private $limit = '';
 
-    public function __construct(array $fields, string $table)
+    public function __construct(array $fields, string $table = null)
     {
         $this->fields = $fields;
         $this->table = $table;
