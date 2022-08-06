@@ -1,32 +1,25 @@
 <?php
 
 use App\Handler\ApiError;
-use Illuminate\Database\Capsule\Manager as Database;
+use App\QueryManager\Mysql\MysqlQueryManager;
 use Psr\Container\ContainerInterface;
+use \App\Exception\NotFound;
 
-$container['db'] = static function (ContainerInterface $container) {
+$container['mysqlQueryManager'] = static function (ContainerInterface $container) {
     $database = $container->get('settings')['db'];
-    $pdo = new Database();
-    $pdo->addConnection([
-        'driver'    => $database['driver'],
-        'host'      => $database['host'],
-        'database'  => $database['name'],
-        'username'  => $database['user'],
-        'password'  => $database['pass'],
-        'charset'   => 'utf8',
-        'collation' => 'utf8_unicode_ci',
-        'prefix'    => ''
-    ]);
+    $dsn = sprintf(
+        'mysql:host=%s;dbname=%s;port=%s;charset=utf8',
+        $database['host'],
+        $database['name'],
+        $database['port']
+    );
 
-    try {
-        $pdo->setAsGlobal();
-        $pdo->setFetchMode(PDO::FETCH_CLASS);
-        $pdo->bootEloquent();
-    } catch (Exception $e) {
-        throw new \App\Exception\ConexionDB("Opps, problemas con la conexion de Base de datos", 500);
-    }
+    $mysqlQueryManager = new MysqlQueryManager($dsn, $database['user'], $database['pass']);
+    $mysqlQueryManager->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $mysqlQueryManager->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+    $mysqlQueryManager->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 
-    return $pdo;
+    return $mysqlQueryManager;
 };
 
 $container['errorHandler'] = static function () {
@@ -35,8 +28,6 @@ $container['errorHandler'] = static function () {
 
 $container['notFoundHandler'] = static function () {
     return static function ($request, $response) {
-        throw new \App\Exception\NotFound('Ruta no encontrada.', 404);
+        throw new NotFound('Ruta no encontrada.', 404);
     };
 };
-
-$pdo = $container['db'];
